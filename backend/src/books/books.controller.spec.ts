@@ -2,6 +2,7 @@ import * as status from 'http-status';
 import { pool } from '../mysql';
 import * as BooksController from './books.controller';
 import ErrorResponse from '../utils/error/errorResponse';
+import * as errorCode from '../utils/error/errorCode';
 
 describe('BooksController', () => {
   afterAll(() => {
@@ -94,8 +95,8 @@ describe('BooksController', () => {
   it('Search book information with category', async () => {
     const req = mockReq();
     req.query.query = '코딩';
-    req.query.page = '3';
-    req.query.limit = '4';
+    req.query.page = '0';
+    req.query.limit = '10';
     req.query.category = 'IT 일반';
     const res = mockResp();
     const next = jest.fn();
@@ -121,7 +122,7 @@ describe('BooksController', () => {
     const next = jest.fn();
     await BooksController.searchBookInfo(req, res, next);
     expect(next.mock.calls[0][0]).toEqual(
-      new ErrorResponse(status.BAD_REQUEST, 'query, page, limit 중 하나 이상이 없습니다.'),
+      new ErrorResponse(errorCode.INVALID_INPUT, status.BAD_REQUEST),
     );
   });
 });
