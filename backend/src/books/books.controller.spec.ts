@@ -12,6 +12,8 @@ describe('BooksController', () => {
   const mockReq = () => {
     const req: any = {};
     req.query = jest.fn().mockReturnValue(req);
+    req.params = jest.fn().mockReturnValue(req);
+    req.body = jest.fn().mockReturnValue(req);
     return req;
   };
   const mockResp = () => {
@@ -121,6 +123,179 @@ describe('BooksController', () => {
     const res = mockResp();
     const next = jest.fn();
     await BooksController.searchBookInfo(req, res, next);
+    expect(next.mock.calls[0][0]).toEqual(
+      new ErrorResponse(errorCode.INVALID_INPUT, status.BAD_REQUEST),
+    );
+  });
+
+  it('sortInfo sorted by new', async () => {
+    const req = mockReq();
+    req.query.sort = 'new';
+    req.query.limit = '10';
+    const res = mockResp();
+    const next = jest.fn();
+    await BooksController.sortInfo(req, res, next);
+    expect(res.status.mock.calls[0][0]).toBe(status.OK);
+    const [[jsonResult]] = res.json.mock.calls;
+    expect(jsonResult).toHaveProperty('items[0].id');
+    expect(jsonResult).toHaveProperty('items[0].title');
+    expect(jsonResult).toHaveProperty('items[0].author');
+    expect(jsonResult).toHaveProperty('items[0].publisher');
+    expect(jsonResult).toHaveProperty('items[0].isbn');
+    expect(jsonResult).toHaveProperty('items[0].image');
+    expect(jsonResult).toHaveProperty('items[0].category');
+    expect(jsonResult).toHaveProperty('items[0].publishedAt');
+    expect(jsonResult).toHaveProperty('items[0].createdAt');
+    expect(jsonResult).toHaveProperty('items[0].updatedAt');
+    expect(jsonResult).toHaveProperty('items[0].lendingCnt');
+  });
+
+  it('sortInfo sorted by popular', async () => {
+    const req = mockReq();
+    req.query.sort = 'popular';
+    req.query.limit = '10';
+    const res = mockResp();
+    const next = jest.fn();
+    await BooksController.sortInfo(req, res, next);
+    expect(res.status.mock.calls[0][0]).toBe(status.OK);
+    const [[jsonResult]] = res.json.mock.calls;
+    expect(jsonResult).toHaveProperty('items[0].id');
+    expect(jsonResult).toHaveProperty('items[0].title');
+    expect(jsonResult).toHaveProperty('items[0].author');
+    expect(jsonResult).toHaveProperty('items[0].publisher');
+    expect(jsonResult).toHaveProperty('items[0].isbn');
+    expect(jsonResult).toHaveProperty('items[0].image');
+    expect(jsonResult).toHaveProperty('items[0].category');
+    expect(jsonResult).toHaveProperty('items[0].publishedAt');
+    expect(jsonResult).toHaveProperty('items[0].createdAt');
+    expect(jsonResult).toHaveProperty('items[0].updatedAt');
+    expect(jsonResult).toHaveProperty('items[0].lendingCnt');
+  });
+
+  it('sortInfo fails', async () => {
+    const req = mockReq();
+    const res = mockResp();
+    const next = jest.fn();
+    await BooksController.sortInfo(req, res, next);
+    expect(next.mock.calls[0][0]).toEqual(
+      new ErrorResponse(errorCode.INVALID_INPUT, status.BAD_REQUEST),
+    );
+  });
+
+  it('getInfoId with valid inputs', async () => {
+    const req = mockReq();
+    req.params.id = '12';
+    const res = mockResp();
+    const next = jest.fn();
+    await BooksController.getInfoId(req, res, next);
+    expect(res.status.mock.calls[0][0]).toBe(status.OK);
+    const [[jsonResult]] = res.json.mock.calls;
+    expect(jsonResult).toHaveProperty('id');
+    expect(jsonResult).toHaveProperty('title');
+    expect(jsonResult).toHaveProperty('author');
+    expect(jsonResult).toHaveProperty('publisher');
+    expect(jsonResult).toHaveProperty('isbn');
+    expect(jsonResult).toHaveProperty('image');
+    expect(jsonResult).toHaveProperty('category');
+    expect(jsonResult).toHaveProperty('publishedAt');
+    expect(jsonResult).toHaveProperty('books[0].id');
+    expect(jsonResult).toHaveProperty('books[0].callSign');
+    expect(jsonResult).toHaveProperty('books[0].donator');
+    expect(jsonResult).toHaveProperty('books[0].dueDate');
+    expect(jsonResult).toHaveProperty('books[0].isLendable');
+  });
+
+  it('getInfoId fails with invalid inputs', async () => {
+    const req = mockReq();
+    const res = mockResp();
+    const next = jest.fn();
+    await BooksController.getInfoId(req, res, next);
+    expect(next.mock.calls[0][0]).toEqual(
+      new ErrorResponse(errorCode.INVALID_INPUT, status.BAD_REQUEST),
+    );
+  });
+  /* 미완성 search-----------------------------------------------------------------------------
+  it('search with valid inputs', async () => {
+    const req = mockReq();
+    req.query.query = '파';
+    req.query.page = 0;
+    req.query.limit = 10;
+    const res = mockResp();
+    const next = jest.fn();
+    await BooksController.search(req, res, next);
+    expect(res.status.mock.calls[0][0]).toBe(status.OK);
+    const [[jsonResult]] = res.json.mock.calls;
+    expect(jsonResult).toHaveProperty('items[0].id');
+    expect(jsonResult).toHaveProperty('items[0].title');
+    expect(jsonResult).toHaveProperty('items[0].author');
+    expect(jsonResult).toHaveProperty('items[0].publisher');
+    expect(jsonResult).toHaveProperty('items[0].isbn');
+    expect(jsonResult).toHaveProperty('items[0].category');
+    expect(jsonResult).toHaveProperty('items[0].isLendable');
+    expect(jsonResult).toHaveProperty('items[0].createdAt');
+    expect(jsonResult).toHaveProperty('meta[0].totalItems');
+    expect(jsonResult).toHaveProperty('meta[0].itemCount');
+    expect(jsonResult).toHaveProperty('meta[0].itemsPerPage');
+    expect(jsonResult).toHaveProperty('meta[0].totalPages');
+    expect(jsonResult).toHaveProperty('meta[0].currentPage');
+  });
+*/
+  it('search with invalid inputs', async () => {
+    const req = mockReq();
+    const res = mockResp();
+    const next = jest.fn();
+    await BooksController.search(req, res, next);
+    expect(next.mock.calls[0][0]).toEqual(
+      new ErrorResponse(errorCode.INVALID_INPUT, status.BAD_REQUEST),
+    );
+  });
+  /* json result type error-------------------------------------------------------------------------
+  it('create with valid inputs', async () => {
+    const req = mockReq();
+    req.body = {
+      title: '작별인사 (김영하 장편소설)',
+      author: '김영하',
+      categoryId: 1,
+      pubdate: '20220502',
+      callSign: 'e7.79.v2.c3',
+    };
+    const res = mockResp();
+    const next = jest.fn();
+    await BooksController.createBook(req, res, next);
+    expect(res.status.mock.calls[0][0]).toBe(status.OK);
+    const [[jsonResult]] = res.json.mock.calls;
+    expect(jsonResult).toBe('code');
+    expect(jsonResult).toBe('messgae');
+  }); */
+
+  it('createBook with invalid inputs', async () => {
+    const req = mockReq();
+    const res = mockResp();
+    const next = jest.fn();
+    await BooksController.createBook(req, res, next);
+    expect(next.mock.calls[0][0]).toEqual(
+      new ErrorResponse(errorCode.INVALID_INPUT, status.BAD_REQUEST),
+    );
+  });
+  /* maybe validate issue -------------------------------------------------------------------------
+  it('createBookInfo with valid inputs', async () => {
+    const req = mockReq();
+    req.query.isbn = '9791191114225';
+    const res = mockResp();
+    const next = jest.fn();
+    await BooksController.createBookInfo(req, res, next);
+    expect(res.status.mock.calls[0][0]).toBe(status.OK);
+    const [[jsonResult]] = res.json.mock.calls;
+    expect(jsonResult).toHaveProperty('isbnInNaver');
+    expect(jsonResult).toHaveProperty('isbnInBookInfo');
+    expect(jsonResult).toHaveProperty('sameTitleOrAuthor');
+  }); */
+
+  it('createBookInfo with invalid inputs', async () => {
+    const req = mockReq();
+    const res = mockResp();
+    const next = jest.fn();
+    await BooksController.createBookInfo(req, res, next);
     expect(next.mock.calls[0][0]).toEqual(
       new ErrorResponse(errorCode.INVALID_INPUT, status.BAD_REQUEST),
     );
