@@ -56,7 +56,7 @@ describe('BooksService', () => {
     expect(result).toHaveProperty('meta.totalPages');
     expect(result).toHaveProperty('meta.currentPage');
   });
-  /* searchisbn 오류..--------------------------------------------------------------------------------
+
   it('createBookInfo isbn is in naver, but not in our DB ', async () => {
     const isbn = '9791160502152';
     const result = await BooksService.createBookInfo(isbn);
@@ -65,7 +65,7 @@ describe('BooksService', () => {
     expect(result).toHaveProperty('isbnInNaver');
     expect(result).toHaveProperty('isbnInBookInfo');
     expect(result).toHaveProperty('sameTitleOrAuthor');
-  }); */
+  });
 
   it('SortInfo with valid inputs', async () => {
     const sort = 'new';
