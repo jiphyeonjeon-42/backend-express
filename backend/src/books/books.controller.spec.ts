@@ -11,9 +11,10 @@ describe('BooksController', () => {
 
   const mockReq = () => {
     const req: any = {};
-    req.query = jest.fn().mockReturnValue(req);
-    req.params = jest.fn().mockReturnValue(req);
-    req.body = jest.fn().mockReturnValue(req);
+    req.query = {};
+    req.params = {};
+    req.body = {};
+    req.user = {};
     return req;
   };
   const mockResp = () => {
@@ -214,12 +215,11 @@ describe('BooksController', () => {
       new ErrorResponse(errorCode.INVALID_INPUT, status.BAD_REQUEST),
     );
   });
-  /* 미완성 search-----------------------------------------------------------------------------
   it('search with valid inputs', async () => {
     const req = mockReq();
-    req.query.query = '파';
-    req.query.page = 0;
-    req.query.limit = 10;
+    req.query.query = '파이썬';
+    req.query.page = '0';
+    req.query.limit = '10';
     const res = mockResp();
     const next = jest.fn();
     await BooksController.search(req, res, next);
@@ -232,14 +232,13 @@ describe('BooksController', () => {
     expect(jsonResult).toHaveProperty('items[0].isbn');
     expect(jsonResult).toHaveProperty('items[0].category');
     expect(jsonResult).toHaveProperty('items[0].isLendable');
-    expect(jsonResult).toHaveProperty('items[0].createdAt');
-    expect(jsonResult).toHaveProperty('meta[0].totalItems');
-    expect(jsonResult).toHaveProperty('meta[0].itemCount');
-    expect(jsonResult).toHaveProperty('meta[0].itemsPerPage');
-    expect(jsonResult).toHaveProperty('meta[0].totalPages');
-    expect(jsonResult).toHaveProperty('meta[0].currentPage');
+    expect(jsonResult).toHaveProperty('meta.totalItems');
+    expect(jsonResult).toHaveProperty('meta.itemCount');
+    expect(jsonResult).toHaveProperty('meta.itemsPerPage');
+    expect(jsonResult).toHaveProperty('meta.totalPages');
+    expect(jsonResult).toHaveProperty('meta.currentPage');
   });
-*/
+
   it('search with invalid inputs', async () => {
     const req = mockReq();
     const res = mockResp();
@@ -248,25 +247,27 @@ describe('BooksController', () => {
     expect(next.mock.calls[0][0]).toEqual(
       new ErrorResponse(errorCode.INVALID_INPUT, status.BAD_REQUEST),
     );
-  });
-  /* json result type error-------------------------------------------------------------------------
+  }); 
+  // data가 추가되어서 test시 callsign 수정 필요-------------------------------------------------------------------------
   it('create with valid inputs', async () => {
     const req = mockReq();
     req.body = {
       title: '작별인사 (김영하 장편소설)',
       author: '김영하',
+      publisher: '다산',
       categoryId: 1,
+      image: 'image',
+      donator: 'donator cannot be null',
       pubdate: '20220502',
-      callSign: 'e7.79.v2.c3',
+      callSign: 'e7.79.v2.c13',
     };
     const res = mockResp();
     const next = jest.fn();
     await BooksController.createBook(req, res, next);
     expect(res.status.mock.calls[0][0]).toBe(status.OK);
-    const [[jsonResult]] = res.json.mock.calls;
-    expect(jsonResult).toBe('code');
-    expect(jsonResult).toBe('messgae');
-  }); */
+    const jsonResult = res.json.mock.calls;
+    expect(jsonResult).toEqual([[{"code": 200, "message": "DB에 insert 성공하였습니다."}]]);
+  });
 
   it('createBook with invalid inputs', async () => {
     const req = mockReq();
@@ -277,10 +278,10 @@ describe('BooksController', () => {
       new ErrorResponse(errorCode.INVALID_INPUT, status.BAD_REQUEST),
     );
   });
-  /* maybe validate issue -------------------------------------------------------------------------
+
   it('createBookInfo with valid inputs', async () => {
     const req = mockReq();
-    req.query.isbn = '9791191114225';
+    req.query.isbnQuery = '9791191114225';
     const res = mockResp();
     const next = jest.fn();
     await BooksController.createBookInfo(req, res, next);
@@ -289,7 +290,7 @@ describe('BooksController', () => {
     expect(jsonResult).toHaveProperty('isbnInNaver');
     expect(jsonResult).toHaveProperty('isbnInBookInfo');
     expect(jsonResult).toHaveProperty('sameTitleOrAuthor');
-  }); */
+  });
 
   it('createBookInfo with invalid inputs', async () => {
     const req = mockReq();

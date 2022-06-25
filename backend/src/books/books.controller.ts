@@ -22,7 +22,7 @@ export const createBook = async (
   try {
     return res
       .status(status.OK)
-      .send(await BooksService.createBook(req.body));
+      .json(await BooksService.createBook(req.body));
   } catch (error: any) {
     const errorNumber = parseInt(error.message, 10);
     if (errorNumber >= 300 && errorNumber < 400) {
@@ -48,7 +48,7 @@ export const createBookInfo = async (
   try {
     return res
       .status(status.OK)
-      .send(await BooksService.createBookInfo(isbn));
+      .json(await BooksService.createBookInfo(isbn));
   } catch (error: any) {
     const errorNumber = parseInt(error.message, 10);
     if (errorNumber >= 300 && errorNumber < 400) {
@@ -156,15 +156,15 @@ export const search = async (
   next: NextFunction,
 ) => {
   const query = String(req.query.query);
-  const page = parseInt(String(req.query.page), 10);
-  const limit = parseInt(String(req.query.limit), 10);
+  const page = String(req.query.page);
+  const limit = String(req.query.limit);
   if (!(query && page && limit)) {
     return next(new ErrorResponse(errorCode.INVALID_INPUT, status.BAD_REQUEST));
   }
   try {
     return res
       .status(status.OK)
-      .json(await BooksService.search(query, page, limit));
+      .json(await BooksService.search(query, parseInt(page, 10), parseInt(limit, 10)));
   } catch (error: any) {
     const errorNumber = parseInt(error.message, 10);
     if (errorNumber >= 300 && errorNumber < 400) {
