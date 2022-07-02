@@ -2,10 +2,22 @@
 import { pool } from '../mysql';
 import * as UsersService from './users.service';
 
+
 describe('UsersService', () => {
+  let fixtureEmail: string;
+
   afterAll(() => {
     pool.end();
+    // DELETE FROM user WHERE email LIKE '%@test-fixture.net';
   });
+
+  beforeAll(async () => {
+    fixtureEmail = `aaaa.${new Date().toISOString()}@test-fixture.net`;
+    await UsersService.createUser(fixtureEmail, 'password');
+    const users: any = await UsersService.searchUserByEmail(fixtureEmail);
+    const user: any = users?.items[0]
+    await UsersService.updateUserAuth(user.id, `nickname-${fixtureEmail}`, user.id + 1000, `slack-${fixtureEmail}`, 1, '2022-07-02')
+  })
 
   // searchUserByNickName
   it('[searchUserByNickName] email 테스트 ', async () => {
@@ -119,6 +131,22 @@ describe('UsersService', () => {
       },
     );
   });
+
+  // searchUserByIntraId2
+  it('존재하는 이용자의 intraId로 UsersService의 searchUserByIntraId() 호출하면 해당 이용자를 반환한다.', async () => {
+    // Given
+    const email = fixtureEmail;
+    const user: any = (await UsersService.searchUserByEmail(email))?.items[0];
+
+    // When
+    // intraId로 UsersService의 searchUserByIntraId() 호출
+    const expected: any[] = await UsersService.searchUserByIntraId(user.intraId)
+
+    // Then
+    // 이용자를 반환. 반환 검증하는 방법 == user id === result id
+    expect(expected[0].id).toEqual(user.id)
+  });
+
 
   // searchUserByIntraId
   it('[searchUserByIntraId] User intraId 14', async () => {

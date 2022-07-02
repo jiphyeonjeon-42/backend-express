@@ -123,6 +123,18 @@ export const searchUserById = async (id: number) => {
   return { items };
 };
 
+export const findUserWithMaskedIntraIdById = async (id: number) => {
+  let items = (await executeQuery(`
+    SELECT 
+    id, email, nickname, intraId, slack, penaltyEndDate, role, updatedAt
+    FROM user
+    WHERE id=?;
+  `, [id])) as models.User[];
+  items = await setOverDueDay(items);
+  return { items };
+};
+
+
 export const searchUserByEmail = async (email: string) => {
   const items = (await executeQuery(`
     SELECT 
